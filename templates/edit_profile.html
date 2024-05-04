@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Edit Profile - {{user.name}}</title>
+{% endblock %}
+
+{% block body %}
+
+{% for messages in get_flashed_messages() %}
+      <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+              {{messages}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+      </div>
+{% endfor %}
+<h5 style="font-weight: bold; margin-left:60px; margin-top: 30px;">UPDATE NAME</h5>
+<div class="shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;">
+    <form method="post" style="margin-top: 10px;">
+        {{form.hidden_tag()}}
+        {{form.name.label(class="label form-label")}}
+        {{form.name(class="name form-control")}}<br>
+        {{form.submit(class="btn btn-primary")}}
+    </form>
+</div>
+<br>
+<h5 style="font-weight: bold; margin-left:60px;">UPDATE PASSWORD</h5>
+<div class="shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;">
+  <form method="post" style="margin-top: 10px;">
+      {{formp.hidden_tag()}}
+      {{formp.currentPassword.label(class="label form-label")}}
+      {{formp.currentPassword(class="name form-control", rows="10")}}<br>
+      {{formp.newPassword.label(class="label form-label")}}
+      {{formp.newPassword(class="name form-control", rows="10")}}<br>
+      {{formp.confirmPassword.label(class="label form-label")}}
+      {{formp.confirmPassword(class="name form-control", rows="10")}}<br>
+      {{formp.submit(class="btn btn-primary")}}
+  </form>
+</div>
+{% endblock %}

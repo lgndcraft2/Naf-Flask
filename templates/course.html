@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{{user.name}} - {{courses.course_name}}</title>
+{% endblock %}
+
+{% block body %}
+<div class="courses align-right">
+  <h3 class="title">Your Courses</h3>
+  {%for messages in get_flashed_messages()%}
+      <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+              {{messages}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+      </div>
+  {%endfor%}
+  <div class="col-sm-10 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px; margin-left: 10px;" >
+      <div class="card-body">
+        <h5 class="card-title">{{courses.course_name}}</h5>
+        <p class="card-text">{{courses.course_description}}</p>
+        <div style="display: flex; justify-content: space-between;">
+          <div>
+          <a href="{{url_for('myCourses')}}" class="btn btn-primary">Back to Courses</a>
+              {% if user in courses.user %}
+                <a href="{{url_for('removeCourse', id=courses.id)}}" class="btn btn-primary">Remove Course</a>
+              {% else %}
+                <a href="{{url_for('unmember_course', id=courses.id)}}" class="btn btn-primary">Go to Courses</a>
+              {% endif %}
+          </div>
+
+          <div>
+          {% if id == courses.creator.id or id == 1 %}
+              <a href="{{url_for('courseDashboard', id=courses.id)}}" class="btn btn-primary">Course Dashboard</a>
+          {% endif %}
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+{% endblock %}

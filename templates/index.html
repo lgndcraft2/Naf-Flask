@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landing Page</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    /* Custom CSS */
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .jumbotron {
+      background-color: #f8f9fa;
+      padding: 80px 20px;
+      text-align: center;
+      height: 500px;
+    }
+    .btn-lg {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="jumbotron">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-md-left text-center">
+        <h1>Welcome to Our Website</h1>
+        <p>This is a simple and stylish landing page</p>
+        <a href="/register" class="btn btn-primary btn-lg mr-2">Sign In</a>
+        <a href="login" class="btn btn-outline-primary btn-lg">Log In</a>
+      </div>
+      <div class="col-md-6 text-md-right text-center">
+        <img src="{{url_for('static', filename='nafdac-logo.png')}}" alt="Logo" class="logo">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

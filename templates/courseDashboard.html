@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Course Dashboard - {{course.course_name}}</title>
+{% endblock %}
+
+{% block body %}
+
+{%for messages in get_flashed_messages()%}
+      <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+              {{messages}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+      </div>
+{%endfor%}
+<div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+<div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;" >
+      <div class="card-body">
+        <h5 style="font-weight: bold;">COURSE NAME</h5>
+        <h5 class="card-title">{{course.course_name}}</h5><br>
+        <h5 style="font-weight: bold;">COURSE DESCRIPTION</h5>
+        <p class="card-text">{{course.course_description}}</p>
+      </div>
+</div>
+</div>
+<div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+<div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;" >
+    <div class="card-body">
+        <div class="table-responsive">
+        <table class="table">
+        <p><b>Documents<i class="fas fa-folder" style="margin-left: 10px;"></i> :</b> {{docs_len}}
+            <tr>
+                <th>File Name</th>
+                <th>Size</b></th>
+                <th>Date Uploaded</th>
+                <th>Download</th>
+                <th>Delete</th>
+            </tr>
+            {% for docs in docs%}
+            <tr>
+                <td>{{docs.filename_real}}</td>
+                <td>{{docs.file_size_str}}</td>
+                <td>{{docs.dateAdded.date()}}</td>
+                <td><a href="{{url_for('download', id=docs.id)}}">Download</a></button></td>
+                <td><a href="{{url_for('delete_doc', id=docs.id)}}">Delete</a><br></td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+    </div>
+</div>
+</div>
+<div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+<div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;" >
+    <div class="card-body">
+        <div class="table-responsive">
+        <table class="table">
+        <p><b>Course Members <i class="fas fa-users" style="margin-left: 10px;"></i> : </b> {{user_len}}</p>
+            <tr>
+                <td><b>Name</b></td>
+                <td><b>E-mail</b></td>
+                <td><b>Remove User</b></td>
+            </tr>
+            {% for users in users%}
+            <tr>
+                <td>{{users.name}}</td>
+                <td>{{users.email}}</td>
+                <td><button type="button" class="btn btn-danger delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/removeUser/" data-id={{course.id}} data-smth-id="{{users.id}}">Remove Course</button></td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+    </div>
+</div>
+</div>
+<div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+<div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;" >
+    <div class="card-body">
+        Join Requests
+        <div class="table-responsive">
+        <table class="table">
+        <p><b>Requests that haven't been responded to:</b> {{requests_len}}</p>
+            <tr>
+                <td>Name</td>
+                <td>Course</td>
+                <td>Course Creator Id</td>
+                <td>Status</td>
+                <td>Accept</td>
+                <td>Decline</td>
+            </tr>
+            {% for requests in requests%}
+            <tr>
+                <td>{{requests.requests.name}}</td>
+                <td>{{requests.requests_course.course_name}}</td>
+                <td>{{requests.course_owner_id}}</td>
+                <td>{{requests.status}}</td>
+                <td><a href="{{url_for('respond_join_request', request_id=requests.id, response='accept')}}">Accept</a></td>
+                <td><a href="{{url_for('respond_join_request', request_id=requests.id, response='decline')}}">Reject</a></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+    </div>
+</div>
+</div>
+{% if id == course.creator.id or id == 1 or user.isAdmin %}
+    <div class="d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+      <a href="{{url_for('edit_course', id=course.id)}}" class="btn btn-primary">Edit Course</a>
+    </div>
+    <div class="d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+      <button type="button" class="btn btn-danger delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/delete_course/" data-id={{course.id}}>Delete Course</button>
+    </div>
+    <div class="d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+      <a href="{{url_for('add_docs', id=course.id)}}" class="btn btn-primary">Add Documents to this Course</a>
+    </div>
+{% endif %}
+
+
+<!-- Modal -->
+<div class="modal fade col-sm-12 p-3 mb-5 bg-body rounded" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Are you Sure?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body txt">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <a id="delete-link" class="btn btn-danger" href="">Proceed</a>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script>
+        $(document).ready(function() {
+            $('.delete-btn').click(function() {
+                var userId = $(this).data('id');
+                var linkVis = $(this).data('record-id');
+                var extlinkVis = $(this).data('smth-id');
+                if ($(this).data('record-id') == "/delete_course/"){
+                    $(".txt").text("Deleting a Course is an irreversible action that can't be undone. Do you still want to proceed?");
+                    $('#delete-link').attr('href', linkVis + userId);
+                }
+                else if($(this).data('record-id') == "/removeUser/"){
+                    $(".txt").text("Are you sure you want to remove this user from this course?");
+                    $('#delete-link').attr('href', linkVis + userId + '/' + extlinkVis);
+                }
+            });
+        });
+</script>
+{% endblock %}

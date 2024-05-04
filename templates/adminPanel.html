@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Admin - {{user.name}}</title>
+{% endblock %}
+
+{% block body %}
+{%for messages in get_flashed_messages()%}
+      <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+              {{messages}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+      </div>
+{%endfor%}
+<h3 style="margin-top: 10px; margin-left: 30px; padding:30px;">Administrator Dashboard</h3>
+<div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+<div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;">
+    <h3>Users: {{users | length}}</h3>
+    <div class="table-responsive">
+    <table class="table">
+            <tr>
+                <th>id</th>
+                <th>FirstName</th>
+                <th>Email</th>
+                <th>Registered Courses</th>
+                <th>Role</th>
+                <th>Delete</th>
+                <th>Admin Toggle</th>
+            </tr>
+            {%for users in users%}
+            <tr>
+                <td>{{users.id}}</td>
+                <td>{{users.name}}</td>
+                <td>{{users.email}}</td>
+                <td>{{users.course | length}}</td>
+                {% if users.isAdmin %}
+                <td>Instructor</td>
+                {% else %}
+                <td>Student</td>
+                {% endif %}
+                {% if users.id > 1 %}
+                <td><button type="button" class="btn btn-danger delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/delete/" data-id={{users.id}}>Delete</button></td>
+                {% else %}
+                <td>Nahhh</td>
+                {% endif %}
+                {% if users.isAdmin and users.id != 1 %}
+                    <td><button type="button" class="btn btn-secondary delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/removeAdmin/" data-id={{users.id}}>Remove as Admin</button></td>
+                {% elif users.id == 1%}
+                    <td>Nahh</td>
+                {% else %}
+                    <td><button type="button" class="btn btn-secondary delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/makeAdmin/" data-id={{users.id}}>Make an Instructor</button></td>
+                {% endif %}
+            </tr>
+            {%endfor%}
+    </table>
+    </div>
+    </div>
+</div>
+<div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+<div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;">
+    <h3>Courses: {{courses | length}}</h3>
+    <div class="table-responsive">
+    <table class="table">
+    <tr>
+        <th>Id</th>
+        <th>Course Name</th>
+        <th>Course Creator</th>
+        <th>Registered Users</th>
+    </tr>
+    {% for courses in courses %}
+        <tr>
+            <td>{{courses.id}}</td>
+            <td>{{courses.course_name}}</td>
+            <td>{{courses.creator.name}}</td>
+            <td>{{courses.user | length}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade col-sm-12 p-3 mb-5 bg-body rounded" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Are you Sure?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body txt">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <a id="delete-link" class="btn btn-danger" href="">Proceed</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script>
+        $(document).ready(function() {
+            $('.delete-btn').click(function() {
+                var userId = $(this).data('id');
+                var linkVis = $(this).data('record-id');
+                if ($(this).data('record-id') == "/delete/"){
+                    $(".txt").text("Deleting a User is an irreversible action that can't be undone. Do you still want to proceed?");
+                }
+                else if($(this).data('record-id') == "/removeAdmin/"){
+                    $(".txt").text("Are you sure you want to strip this user of their administrative rights?");
+                }
+                else if($(this).data('record-id') == "/makeAdmin/"){
+                    $(".txt").text("Are you sure you want to give this user administrative rights?");
+                }
+                $('#delete-link').attr('href', linkVis + userId);
+            });
+        });
+    </script>
+{% endblock %}

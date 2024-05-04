@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{{user.name}} - {{courses.course_name}}</title>
+<style>
+    .buttonDownload {
+     display: inline-block;
+     position: relative;
+     padding: 10px 25px;
+     background-color: #4CC713;
+     color: white;
+     font-family: sans-serif;
+     text-decoration: none;
+     font-size: 0.9em;
+     text-align: center;
+     text-indent: 15px;
+     border: none;
+    }
+
+    .buttonDownload:hover {
+     background-color: #45a21a;
+     color: white;
+    }
+
+    .buttonDownload:before, .buttonDownload:after {
+     content: ' ';
+     display: block;
+     position: absolute;
+     left: 15px;
+     top: 52%;
+    }
+
+    .buttonDownload:before {
+     width: 10px;
+     height: 2px;
+     border-style: solid;
+     border-width: 0 2px 2px;
+    }
+
+    .buttonDownload:after {
+     width: 0;
+     height: 0;
+     margin-left: 3px;
+     margin-top: -7px;
+     border-style: solid;
+     border-width: 4px 4px 0 4px;
+     border-color: transparent;
+     border-top-color: inherit;
+     animation: downloadArrow 1s linear infinite;
+     animation-play-state: paused;
+    }
+
+    .buttonDownload:hover:before {
+     border-color: #cdefbd;
+    }
+
+    .buttonDownload:hover:after {
+     border-top-color: #cdefbd;
+     animation-play-state: running;
+    }
+
+    @keyframes downloadArrow {
+     0% {
+      margin-top: -7px;
+      opacity: 1;
+     }
+
+     0.001% {
+      margin-top: -15px;
+      opacity: 0.4;
+     }
+
+     50% {
+      opacity: 1;
+     }
+
+     100% {
+      margin-top: 0;
+      opacity: 0.4;
+     }
+    }
+    .buttonDownload a{
+        color: white;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="courses align-right">
+  {%for messages in get_flashed_messages()%}
+      <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+              {{messages}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+      </div>
+  {%endfor%}
+  <div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+  <div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 30px;" >
+      <div class="card-body">
+        <h5 style="font-weight: bold;">COURSE NAME</h5>
+        <h5 class="card-title">{{courses.course_name}}</h5><br>
+        <h5 style="font-weight: bold;">COURSE DESCRIPTION</h5>
+        <p class="card-text">{{courses.course_description}}</p>
+      </div>
+  </div>
+  </div>
+  <div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+    <div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;" >
+      {% if user in courses.user or id == courses.creator.id %}
+          <div class="card-body">
+              <div class="table-responsive">
+              <table class="table">
+                <p><b>Documents:</b> {{docs_len}}
+                <tr>
+                    <td><b>File Name</b></td>
+                    <td><b>Size</b></td>
+                    <td><b>Date Uploaded</b></td>
+                    <td><b>Download</b></td>
+                </tr>
+                {% if docs %}
+                    {% for docs in docs%}
+                        <tr>
+                            <td>{{docs.filename_real}}</td>
+                            <td>{{docs.file_size_str}}</td>
+                            <td>{{docs.dateAdded.date()}}</td>
+                            <td><a href="{{url_for('download', id=docs.id)}}">Download</a></button></td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                        <tr>
+                            <td>No Documents yet for this Course</td>
+                            <td>No Documents yet for this Course</td>
+                            <td>No Documents yet for this Course</td>
+                            <td>No Documents yet for this Course</td>
+                        </tr>
+                {% endif %}
+
+              </table>
+              </div>
+          </div>
+      {% endif %}
+      <div style="display: flex; justify-content: space-between;">
+          <div>
+              <a href="{{url_for('myCourses')}}" class="btn btn-primary">Back to Courses</a>
+              <button type="button" class="btn btn-secondary delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/removeCourse/" data-id={{courses.id}}>Remove Course</button>
+          </div>
+      </div>
+    </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade col-sm-11 p-3 mb-5 bg-body rounded" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Remove Course</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to remove this course from your course list?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <a id="delete-link" class="btn btn-danger" href="">Confirm</a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script>
+        $(document).ready(function() {
+            $('.delete-btn').click(function() {
+                var userId = $(this).data('id');
+                var linkVis = $(this).data('record-id');
+                $('#delete-link').attr('href', linkVis + userId);
+            });
+        });
+</script>
+{% endblock %}

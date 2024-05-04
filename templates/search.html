@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Search - {{searched}}</title>
+{% endblock %}
+
+{% block body %}
+  <h2>You Searched For: <em> {{searched}}</em></h2>
+  {% if courses %}
+  <div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+  {% for courses in courses%}
+    <div class="col-sm-10 shadow p-3 mb-5 bg-body rounded border" style="margin-top: 10px;" >
+        <div class="card-body">
+          <h5 class="card-title">{{courses.course_name}}</h5>
+          <p class="card-text">{{courses.course_description}}</p>
+          <p>{{courses.course_creator}}</p>
+          {% if user in courses.user %}
+          <a href="{{url_for('course', id=courses.id)}}" class="btn btn-primary">Go to Course</a>
+          {% else %}
+          <a href="{{url_for('unmember_course', id=courses.id)}}" class="btn btn-primary">Go to Courses</a>
+          {% endif %}
+        </div>
+    </div>
+  {% endfor%}
+  </div>
+  {% else %}
+  <h2>No Courses Found with that name</h2>
+  {% endif %}
+{% endblock %}

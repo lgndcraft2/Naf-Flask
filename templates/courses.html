@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Courses - {{user.name}}</title>
+{% endblock %}
+
+{% block body %}
+<div class="courses align-right" style="margin-top:10px; margin-left: 15px;">
+  {%for messages in get_flashed_messages()%}
+      <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+              {{messages}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+      </div>
+  {%endfor%}
+  <h5 style="font-weight: bold; margin-left:75px; margin-top: 30px;">All Courses</h5>
+  {% for courses in courses%}
+  <div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px; margin-left: 60px;" >
+      <div class="card-body">
+        <h5 class="card-title">{{courses.course_name}}</h5>
+        <p class="card-text">{{courses.course_description}}</p>
+        <p><small>Created By: {{courses.creator.name}}</small></p>
+        {% if user.id == courses.creator.id %}
+              <a href="{{url_for('courseDashboard', id=courses.id)}}" class="btn btn-primary">Course Dashboard</a>
+        {% endif %}
+        {% if user in courses.user %}
+          <a href="{{url_for('course', id=courses.id)}}" class="btn btn-primary">Go to Course</a>
+        {% elif not user.isAdmin%}
+          <a href="{{url_for('send_course_request', id=courses.id)}}" class="btn btn-primary">Send Join Request</a>
+        {% endif %}
+      </div>
+  </div>
+  {% endfor%}
+</div>
+{% endblock %}

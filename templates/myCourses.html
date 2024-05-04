@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Courses - {{user.name}}</title>
+{% endblock %}
+
+{% block body %}
+  <div class="courses align-right" style="margin-top:10px; margin-left: 15px;">
+    {%for messages in get_flashed_messages()%}
+        <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+                {{messages}}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+        </div>
+    {%endfor%}
+  </div>
+<div class="courses align-right" style="margin-top:10px;">
+  <h5 style="font-weight: bold; margin-left:60px; margin-top: 30px;">Your Registered Courses</h5>
+  {% if my_course %}
+  <div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+    {% for courses in my_course %}
+        <div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;" >
+            <div class="card-body">
+              <h5 class="card-title">{{courses.course_name}}</h5>
+              <p class="card-text">{{courses.course_description}}</p>
+              <p><small>Created By: {{courses.creator.name}}</small></p>
+              <a href="{{url_for('course', id=courses.id)}}" class="btn btn-primary">Go to Course</a>
+            </div>
+        </div>
+    {% endfor%}
+    </div>
+  {% else %}
+  <div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+    <div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;" >
+        <div class="card-body" align="center">
+          <h5 class="card-title">You have no courses registered</h5>
+          <p class="card-text">Register some now?</p>
+            <a href="/courses" class="card-text">Add</a>
+        </div>
+    </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Dashboard - {{user.name}}</title>
+{% endblock %}
+
+
+{% block body %}
+<div>
+<div class="courses align-right" style="margin-top:10px; margin-left: 25px; margin-right: 25px;">
+  {%for messages in get_flashed_messages()%}
+      <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+              {{messages}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+      </div>
+  {%endfor%}
+  <h3 style="margin-left: 15px">Your Details</h3>
+  <div class="col-sm-10 shadow p-3 mb-5 bg-body rounded border" style="margin-top: 10px; margin-left: 10px;" >
+      <div class="card-body">
+        <h5 class="card-title">Name: {{user.name}}</h5>
+        <p class="card-text">E-Mail: {{user.email}}<br></p>
+        <p class="card-text">Role: {% if user.isAdmin %}Instructor{% else %}Student{% endif %}<br></p>
+        {% if user.isAdmin %}
+          <p class="card-text"><a class="card-text" href="/createdCourses">Created Courses</a>: {{ccou}}</p>
+        {% else %}
+          <p class=""><a class="card-text" href="/myCourses">Registered Courses</a>: {{cou}}</p>
+        {% endif %}
+        <p class="card-text">Date Registered: {{user.dateAdded.date()}}</p>
+      </div>
+  </div>
+</div>
+</div>
+{% endblock %}

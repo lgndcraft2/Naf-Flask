@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Edit Course - {{user.name}}</title>
+{% endblock %}
+
+{% block body %}
+
+{% for messages in get_flashed_messages() %}
+      <div class="alert alert-success alert-dismissible fade show " id="ppbx-2" role="alert">
+              {{messages}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+      </div>
+{% endfor %}
+<div class="shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;">
+    <form method="post" style="margin-top: 10px;">
+        {{form.hidden_tag()}}
+        {{form.course_name.label(class="label form-label")}}
+        {{form.course_name(class="name form-control")}}<br>
+        {{form.course_description.label(class="label form-label")}}
+        {{form.course_description(class="name form-control", rows="10")}}<br>
+        {{form.submit(class="btn btn-primary")}}
+    </form>
+</div>
+{% endblock %}

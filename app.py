@@ -23,7 +23,7 @@ s3 = boto3.client(
 app.config["SECRET_KEY"] = 'qwertyasababyboy'
 uri = os.getenv("DATABASE_URL")
 if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://")]
+    uri = uri.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = uri
 upload_folder = 'static/uploads/'
 app.config['UPLOAD_FOLDER'] = upload_folder

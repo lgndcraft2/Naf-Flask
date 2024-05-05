@@ -14,12 +14,17 @@ import boto3, botocore
 import os
 from datetime import datetime, timedelta
 from wtforms.widgets import TextArea
+import re
+
 
 app = Flask(__name__)
 s3 = boto3.client(
     "s3", aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
 app.config["SECRET_KEY"] = 'qwertyasababyboy'
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL?sslmode=require').replace('postgres://', 'postgresql://')
+uri = os.getenv("DATABASE_URL")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://")]
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
 upload_folder = 'static/uploads/'
 app.config['UPLOAD_FOLDER'] = upload_folder
 #app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://lgndcraft:Zainab12@lgndcraft.mysql.pythonanywhere-services.com/lgndcraft$default"

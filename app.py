@@ -19,7 +19,7 @@ app = Flask(__name__)
 s3 = boto3.client(
     "s3", aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
 app.config["SECRET_KEY"] = 'qwertyasababyboy'
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DATABASE_URL')
 upload_folder = 'static/uploads/'
 app.config['UPLOAD_FOLDER'] = upload_folder
 #app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://lgndcraft:Zainab12@lgndcraft.mysql.pythonanywhere-services.com/lgndcraft$default"

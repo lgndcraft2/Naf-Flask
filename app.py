@@ -10,11 +10,14 @@ from flask_login import UserMixin, LoginManager, login_user, login_required, log
 from werkzeug.utils import secure_filename
 from markupsafe import Markup
 import uuid as uuid
+import boto3, botocore
 import os
 from datetime import datetime, timedelta
 from wtforms.widgets import TextArea
 
 app = Flask(__name__)
+s3 = boto3.client(
+    "s3", aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
 app.config["SECRET_KEY"] = 'qwertyasababyboy'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 upload_folder = 'static/uploads/'
@@ -221,12 +224,19 @@ def add_docs(id):
 
                     # creates the name securely
                     file_filename = secure_filename(file.filename)
+
                     # adds and encoder or smth like that to the file name
                     file_name = str(uuid.uuid1()) + "_" + file_filename
+
                     # saves the file
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+                    bucket_name = os.getenv("AWS_BUCKET_NAME")
+                    s3.upload_fileobj(file, bucket_name, file_name)
+
+                    response = s3.head_object(Bucket=bucket_name, Key=file_name)
+
                     # gets file size in kilobytes
-                    file_size = os.stat(app.config['UPLOAD_FOLDER'] + "/" + file_name).st_size / 1024
+                    file_size = response['ContentLength'] / 1024
+                    print(file_size)
 
                     # saves a str version of it in a column in mi db based on kb and mb
                     if file_size >= 1024:
@@ -260,7 +270,8 @@ def delete_doc(id):
         if user.isAdmin:
             docs = Docs.query.get_or_404(id)
             try:
-                os.remove(app.config['UPLOAD_FOLDER'] + docs.filename)
+                bucket_name = os.getenv("AWS_BUCKET_NAME")
+                s3.delete_object(Bucket=bucket_name, Key=docs.filename)
                 try:
                     db.session.delete(docs)
                     db.session.commit()
@@ -268,11 +279,11 @@ def delete_doc(id):
                     return redirect(request.referrer)
                 except:
                     flash("An error Occurred Somewhere")
-            except FileNotFoundError as e:
+            except:
                 try:
                     db.session.delete(docs)
                     db.session.commit()
-                    flash("Document deleted already - But Records were deleted Successfully")
+                    flash("An Error Occured - But Records were deleted Successfully")
                     return redirect(request.referrer)
                 except:
                     flash("An error Occurred Somewhere")
@@ -489,11 +500,16 @@ def download(id):
     if current_user.is_authenticated:
         upload = Docs.query.filter_by(id=id).first()
         if upload is not None:
-            location = app.config['UPLOAD_FOLDER'] + upload.filename
+            # location = app.config['UPLOAD_FOLDER'] + upload.filename
+            bucket_name = os.getenv("AWS_BUCKET_NAME")
             try:
-                return send_file(location, download_name=upload.filename_real, as_attachment=True)
+                response = s3.get_object(Bucket=bucket_name, Key=upload.filename)
+                return send_file(response['Body'], download_name=upload.filename_real, as_attachment=True)
             except FileNotFoundError as e:
                 flash("The Document was not found, It probably has been deleted from the server")
+                return redirect(request.referrer)
+            except:
+                flash("There was an issue establishing connection")
                 return redirect(request.referrer)
         else:
             flash("File not found... It was probably deleted")

@@ -189,7 +189,7 @@ def send_course_request(id):
         if user != course.creator:
             existing_request = Requests.query.filter_by(requesting_user_id=user.id, course_id_requested=course.id, status='pending').first()
             if not existing_request:
-                if user not in course.users:
+                if user not in course.user:
                     if not user.isAdmin:
                         new_request = Requests(requesting_user_id=user.id, course_id_requested=course.id, course_owner_id=course.creator.id)
                         try:

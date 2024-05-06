@@ -150,38 +150,6 @@ class DocForm(FlaskForm):
 
 
 @login_required
-@app.route("/send_course_request/<int:id>", methods=["GET", "POST"])
-def send_course_request(id):
-    user = current_user
-    if user.is_authenticated:
-        course = Courses.query.get_or_404(id)
-        if user != course.creator:
-            existing_request = Requests.query.filter_by(requesting_user_id=user.id, course_id_requested=course.id, status='pending').first()
-            if not existing_request:
-                if user not in course.users:
-                    if not user.isAdmin:
-                        new_request = Requests(requesting_user_id=user.id, course_id_requested=course.id, course_owner_id=course.creator.id)
-                        db.session.add(new_request)
-                        db.session.commit()
-                        flash("Request Sent Successfully")
-                        return redirect(url_for("dash"))
-                    else:
-                        flash("You are an instructor, you can't Join a Course")
-                        return redirect(request.referrer)
-                else:
-                    flash("You are already a member of this course")
-                    return redirect(url_for("course", id=id))
-            else:
-                flash("You have already sent a join request for this course")
-                return redirect(request.referrer)
-        else:
-            flash("You cannot send a request for your own course")
-            return redirect(url_for("createdCourses"))
-    else:
-        flash("Your Session Timed Out")
-        return redirect(url_for('login'))
-
-@login_required
 @app.route("/add_admin/<int:user_id>/<int:course_id>", methods=["GET", "POST"])
 def add_admin(course_id, user_id):
     user = current_user

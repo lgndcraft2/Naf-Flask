@@ -160,7 +160,7 @@
                 }
                 else if($(this).data('record-id') == "/add_admin/"){
                     $(".txt").text("Are you sure you want to make this user an admin of this course?");
-                    $('#delete-link').attr('href', linkVis + userId + '/' + extlinkVis);
+                    $('#delete-link').attr('href', linkVis + extlinkVis + '/' + userId);
                 }
             });
         });

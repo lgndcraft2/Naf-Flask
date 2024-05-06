@@ -397,8 +397,8 @@ def courseDashboard(id):
             requests = Requests.query.filter_by(status='pending', course_id_requested=course.id).all()
             requests_len = Requests.query.filter_by(status='pending', course_id_requested=course.id).count()
 
-            users = course.users
-            user_len = len(course.users)
+            users = course.user
+            user_len = len(course.user)
     else:
         flash("Session has expired")
         return redirect(url_for('login'))

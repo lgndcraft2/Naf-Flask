@@ -58,15 +58,17 @@
         <table class="table">
         <p><b>Course Members <i class="fas fa-users" style="margin-left: 10px;"></i> : </b> {{user_len}}</p>
             <tr>
-                <td><b>Name</b></td>
-                <td><b>E-mail</b></td>
-                <td><b>Remove User</b></td>
+                <th>Name</th>
+                <th>E-mail</th>
+                <th>Remove User</th>
+                <th>Make Course Admin</th>
             </tr>
             {% for users in users%}
             <tr>
                 <td>{{users.name}}</td>
                 <td>{{users.email}}</td>
                 <td><button type="button" class="btn btn-danger delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/removeUser/" data-id={{course.id}} data-smth-id="{{users.id}}">Remove Course</button></td>
+                <td><button type="button" class="btn btn-primary delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/add_admin/" data-id={{course.id}} data-smth-id="{{users.id}}">Make Course Admin</button></td>
             </tr>
             {% endfor %}
         </table>
@@ -154,6 +156,10 @@
                 }
                 else if($(this).data('record-id') == "/removeUser/"){
                     $(".txt").text("Are you sure you want to remove this user from this course?");
+                    $('#delete-link').attr('href', linkVis + userId + '/' + extlinkVis);
+                }
+                else if($(this).data('record-id') == "/add_admin/"){
+                    $(".txt").text("Are you sure you want to make this user an admin of this course?");
                     $('#delete-link').attr('href', linkVis + userId + '/' + extlinkVis);
                 }
             });

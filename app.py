@@ -228,7 +228,7 @@ def respond_join_request(request_id, response):
             if response == "accept":
                 try:
                     requester.status = "accepted"
-                    requester.requests_course.users.append(requester.requests)
+                    requester.requests_course.user.append(requester.requests)
                     db.session.commit()
                     flash("You accepted the Request")
                 except:

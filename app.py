@@ -45,15 +45,18 @@ def make_session_permanent():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 course_tag = db.Table('course_tag',
-                      db.Column('id', db.Integer, primary_key=True),
-                      db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                      db.Column('course_id', db.Integer, db.ForeignKey('courses.id'))
+                      db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+                      db.Column('course_id', db.Integer, db.ForeignKey('courses.id'), primary_key=True)
                       )
 
+course_admins = db.Table('course_admins',
+                         db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+                         db.Column('course_id', db.Integer, db.ForeignKey('courses.id'), primary_key=True)
+                         )
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -63,10 +66,9 @@ class User(db.Model, UserMixin):
     isAdmin = db.Column(db.Boolean, nullable=False)
     dateAdded = db.Column(db.DateTime, default=datetime.utcnow)
 
-    courses_key = db.relationship("Courses", backref='creator')
     course = db.relationship('Courses', secondary=course_tag, backref='user')
+    admin_courses = db.relationship('Courses', secondary=course_admins, backref='admins')
     requester = db.relationship('Requests', backref='requests')
-    # courses = db.relationship('UserCourses', back_populates='user')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -75,18 +77,15 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
 
-# Course DB
 class Courses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     course_name = db.Column(db.String(100), nullable=False)
     course_description = db.Column(db.Text, nullable=False)
-    #course_category = db.Column(db.String, nullable=False)
-    # course_creator = db.Column(db.String, nullable=False)
     dateAdded = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Foreign Key Creation
     creator_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    users = db.relationship('User', secondary=course_tag, backref='courses')
+    creator = db.relationship('User', backref='created_courses')
     course = db.relationship('Requests', backref='requests_course')
     docs_key = db.relationship("Docs", backref='docs')
 
@@ -166,6 +165,70 @@ def send_course_request(id):
                         db.session.commit()
                         flash("Request Sent Successfully")
                         return redirect(url_for("dash"))
+                    else:
+                        flash("You are an instructor, you can't Join a Course")
+                        return redirect(request.referrer)
+                else:
+                    flash("You are already a member of this course")
+                    return redirect(url_for("course", id=id))
+            else:
+                flash("You have already sent a join request for this course")
+                return redirect(request.referrer)
+        else:
+            flash("You cannot send a request for your own course")
+            return redirect(url_for("createdCourses"))
+    else:
+        flash("Your Session Timed Out")
+        return redirect(url_for('login'))
+
+@login_required
+@app.route("/add_admin/<int:user_id>/<int:course_id>", methods=["GET", "POST"])
+def add_admin(course_id, user_id):
+    user = current_user
+    if user.is_authenticated:
+        course = Courses.query.get_or_404(course_id)
+        new_admin = User.query.get_or_404(user_id)
+        if user == course.creator:
+            if new_admin != course.creator:
+                if user not in course.admin_courses:
+                    try:
+                        user.admin_courses.append(course)
+                        db.session.commit()
+                    except:
+                        flash("An Error Occured")
+                        return redirect(url_for(request.referrer))
+                else:
+                    flash("You are already an admin of this course")
+                    return redirect(url_for(request.referrer))
+            else:
+                flash("You can't add yourself again as an admin - You created the course")
+                return redirect(url_for(request.referrer))
+        else:
+            flash("You don't have permission to perform this action")
+            return redirect(url_for("dash"))
+    else:
+        flash("Your Session Timed Out")
+        return redirect(url_for('login'))
+
+@login_required
+@app.route("/send_course_request/<int:id>", methods=["GET", "POST"])
+def send_course_request(id):
+    user = current_user
+    if user.is_authenticated:
+        course = Courses.query.get_or_404(id)
+        if user != course.creator:
+            existing_request = Requests.query.filter_by(requesting_user_id=user.id, course_id_requested=course.id, status='pending').first()
+            if not existing_request:
+                if user not in course.users:
+                    if not user.isAdmin:
+                        new_request = Requests(requesting_user_id=user.id, course_id_requested=course.id, course_owner_id=course.creator.id)
+                        try:
+                            db.session.add(new_request)
+                            db.session.commit()
+                            flash("Request Sent Successfully")
+                            return redirect(url_for("dash"))
+                        except:
+                            flash("Couldn't Send Request")
                     else:
                         flash("You are an instructor, you can't Join a Course")
                         return redirect(request.referrer)
@@ -490,7 +553,6 @@ def createdCourses():
                 pending_request_count = Requests.query.filter_by(course_id_requested=course.id, status='pending').count()
                 course_pending_requests.append((course, pending_request_count))
             sorted_courses = sorted(course_pending_requests, key=lambda x: x[1], reverse=True)
-            # courses_sorted_by_requests = db.session.query(Courses, func.count(Requests.course_owner_id == user.id).label('request_count')).outerjoin(Requests, Courses.id == Requests.course_id_requested).group_by(Courses).order_by(func.count(Requests.course_owner_id == user.id).desc()).all()
         else:
             flash("You Can't Access this Page")
             return redirect(url_for('dash'))

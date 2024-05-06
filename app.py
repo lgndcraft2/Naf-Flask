@@ -150,7 +150,7 @@ class DocForm(FlaskForm):
 
 
 @login_required
-@app.route("/add_admin/<int:user_id>/<int:course_id>", methods=["GET", "POST"])
+@app.route("/add_admin/<int:course_id>/<int:user_id>", methods=["GET", "POST"])
 def add_admin(course_id, user_id):
     user = current_user
     if user.is_authenticated:
@@ -162,6 +162,8 @@ def add_admin(course_id, user_id):
                     try:
                         user.admin_courses.append(course)
                         db.session.commit()
+                        flash("Made user admin successfully")
+                        return redirect(url_for(request.referrer))
                     except:
                         flash("An Error Occured")
                         return redirect(url_for(request.referrer))

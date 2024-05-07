@@ -49,13 +49,15 @@ def load_user(user_id):
 
 
 course_tag = db.Table('course_tag',
-                      db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-                      db.Column('course_id', db.Integer, db.ForeignKey('courses.id'), primary_key=True)
+                      db.Column('id', db.Integer, primary_key=True),
+                      db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                      db.Column('course_id', db.Integer, db.ForeignKey('courses.id'))
                       )
 
 course_admins = db.Table('course_admins',
-                         db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-                         db.Column('course_id', db.Integer, db.ForeignKey('courses.id'), primary_key=True)
+                         db.Column('id', db.Integer, primary_key=True),
+                         db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                         db.Column('course_id', db.Integer, db.ForeignKey('courses.id'))
                          )
 
 class User(db.Model, UserMixin):
@@ -148,7 +150,6 @@ class DocForm(FlaskForm):
     image = FileField('File Here....', validators=[FileRequired()])
     submit = SubmitField('Submit')
 
-
 @login_required
 @app.route("/add_admin/<int:user_id>/<int:course_id>", methods=["GET", "POST"])
 def add_admin(course_id, user_id):
@@ -158,18 +159,18 @@ def add_admin(course_id, user_id):
         new_admin = User.query.get_or_404(user_id)
         if user == course.creator:
             if new_admin != course.creator:
-                if new_admin not in course.admin_courses:
+                if new_admin not in course.admins:
                     try:
                         new_admin.admin_courses.append(course)
                         db.session.commit()
                         flash("Made user admin successfully")
-                        return redirect(url_for(request.referrer))
+                        return redirect(url_for("courseDashboard", id=course_id))
                     except:
                         flash("An Error Occured")
-                        return redirect(url_for(request.referrer))
+                        return redirect(url_for("courseDashboard", id=course_id))
                 else:
                     flash("You are already an admin of this course")
-                    return redirect(url_for(request.referrer))
+                    return redirect(url_for("courseDashboard", id=course_id))
             else:
                 flash("You can't add yourself again as an admin - You created the course")
                 return redirect(url_for(request.referrer))
@@ -253,8 +254,8 @@ def respond_join_request(request_id, response):
 def add_docs(id):
     user = current_user
     if user.is_authenticated:
-        if user.isAdmin:
-            course = Courses.query.get_or_404(id)
+        course = Courses.query.get_or_404(id)
+        if user.isAdmin or user == course.creator or user in course.admins:
             if request.method == 'POST':
                 file = request.files['file']
                 if file:
@@ -390,8 +391,8 @@ def land():
 def courseDashboard(id):
     user = current_user
     if user.is_authenticated:
-        if user.isAdmin:
-            course = Courses.query.get_or_404(id)
+        course = Courses.query.get_or_404(id)
+        if user.isAdmin or user.id == course.creator.id or user in course.admins:
             docs = Docs.query.filter_by(course_id=id).all()
             docs_len = Docs.query.filter_by(course_id=id).count()
             requests = Requests.query.filter_by(status='pending', course_id_requested=course.id).all()
@@ -399,6 +400,9 @@ def courseDashboard(id):
 
             users = course.user
             user_len = len(course.user)
+        else:
+            flash("You aren't granted this permission")
+            return redirect(url_for("dash"))
     else:
         flash("Session has expired")
         return redirect(url_for('login'))
@@ -412,18 +416,20 @@ def courseDashboard(id):
 @app.route('/login', methods=["GET", "POST"])
 def login():
     form = Login()
-
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            if check_password_hash(user.password_hash, form.password.data):
-                login_user(user)
-                return redirect(url_for('dash'))
+    if not current_user.is_authenticated:
+        if form.validate_on_submit():
+            user = User.query.filter_by(email=form.email.data).first()
+            if user:
+                if check_password_hash(user.password_hash, form.password.data):
+                    login_user(user)
+                    return redirect(url_for('dash'))
+                else:
+                    flash("Password is Incorrect")
             else:
-                flash("Password is Incorrect")
-        else:
-            flash(Markup("Account not Found. <a href='register'>Create One?</a>"))
-    return render_template("login.html", form=form)
+                flash(Markup("Account not Found. <a href='register'>Create One?</a>"))
+        return render_template("login.html", form=form)
+    else:
+        return redirect(url_for('dash'))
 
 
 @app.context_processor
@@ -635,10 +641,11 @@ def delete_course(id):
         return redirect(url_for('login'))
     if id == course_to_delete.creator.id:
         try:
-            course_to_delete.users.clear()
+            course_to_delete.user.clear()
             db.session.commit()
         except:
             flash("There was an error deleting this course, Try Again")
+            return redirect(url_for(request.referrer))
         else:
             db.session.delete(course_to_delete)
             db.session.commit()
@@ -658,6 +665,7 @@ def dash():
         user = current_user
         cou = len(user.course)
         ccou = Courses.query.filter_by(creator_id=user.id).count()
+        print(user.admin_courses)
     else:
         flash("Your Session Timed Out")
         return redirect(url_for('login'))
@@ -802,6 +810,7 @@ def edit_profile(id):
             return render_template('edit_profile.html', form=form, user=user, formp=formp)
         else:
             flash("You can't perform this action")
+            return redirect(url_for('dash'))
     else:
         flash("Your Session Timed Out")
         return redirect(url_for("login"))

@@ -20,8 +20,14 @@
         <h5 style="font-weight: bold;">COURSE NAME</h5>
         <h5 class="card-title">{{course.course_name}}</h5><br>
         <h5 style="font-weight: bold;">COURSE DESCRIPTION</h5>
-        <p class="card-text">{{course.course_description}}</p>
+        <p class="card-text" style="overflow-wrap: break-word;">{{course.course_description}}</p>
       </div>
+        {% if id == course.creator.id or id == 1 or user.isAdmin or user in course.admins %}
+        <div class="d-flex justify-space-between" style="margin-top:10px; padding:10px;">
+          <a href="{{url_for('edit_course', id=course.id)}}" class="btn btn-primary">Edit Course</a>
+          <button type="button" class="btn btn-danger delete-btn" style="margin-left: 7px;" data-toggle="modal" data-target="#exampleModal" data-record-id="/delete_course/" data-id={{course.id}}>Delete Course</button>
+        </div>
+        {% endif %}
 </div>
 </div>
 <div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
@@ -48,6 +54,11 @@
             {% endfor %}
         </table>
         </div>
+        {% if id == course.creator.id or id == 1 or user.isAdmin or user in course.admins %}
+        <div class="d-flex justify-content-center" style="margin-top:10px; padding:10px;">
+          <a href="{{url_for('add_docs', id=course.id)}}" class="btn btn-primary">Add Documents to this Course</a>
+        </div>
+        {% endif %}
     </div>
 </div>
 </div>
@@ -68,7 +79,11 @@
                 <td>{{users.name}}</td>
                 <td>{{users.email}}</td>
                 <td><button type="button" class="btn btn-danger delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/removeUser/" data-id={{course.id}} data-smth-id="{{users.id}}">Remove Course</button></td>
+                {% if users in course.admins %}
+                <td><button type="button" class="btn btn-primary delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/add_admin/" data-id={{course.id}} data-smth-id="{{users.id}}">Remove Course Admin</button></td>
+                {% else %}
                 <td><button type="button" class="btn btn-primary delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/add_admin/" data-id={{course.id}} data-smth-id="{{users.id}}">Make Course Admin</button></td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
@@ -107,18 +122,6 @@
     </div>
 </div>
 </div>
-{% if id == course.creator.id or id == 1 or user.isAdmin %}
-    <div class="d-flex justify-content-center" style="margin-top:10px; padding:10px;">
-      <a href="{{url_for('edit_course', id=course.id)}}" class="btn btn-primary">Edit Course</a>
-    </div>
-    <div class="d-flex justify-content-center" style="margin-top:10px; padding:10px;">
-      <button type="button" class="btn btn-danger delete-btn" data-toggle="modal" data-target="#exampleModal" data-record-id="/delete_course/" data-id={{course.id}}>Delete Course</button>
-    </div>
-    <div class="d-flex justify-content-center" style="margin-top:10px; padding:10px;">
-      <a href="{{url_for('add_docs', id=course.id)}}" class="btn btn-primary">Add Documents to this Course</a>
-    </div>
-{% endif %}
-
 
 <!-- Modal -->
 <div class="modal fade col-sm-12 p-3 mb-5 bg-body rounded" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

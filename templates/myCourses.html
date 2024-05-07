@@ -21,11 +21,14 @@
   <div class="courses d-flex justify-content-center" style="margin-top:10px; padding:10px;">
     {% for courses in my_course %}
         <div class="col-sm-11 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;" >
-            <div class="card-body">
+            <p class="card-body">
               <h5 class="card-title">{{courses.course_name}}</h5>
-              <p class="card-text">{{courses.course_description}}</p>
+              <p class="card-text" style="overflow-wrap: break-word;">{{courses.course_description}}</p>
               <p><small>Created By: {{courses.creator.name}}</small></p>
               <a href="{{url_for('course', id=courses.id)}}" class="btn btn-primary">Go to Course</a>
+                {% if user in courses.admins %}
+                <a href="{{url_for('courseDashboard', id=courses.id)}}" class="btn btn-primary">View Course Dashboard</a>
+                {% endif %}
             </div>
         </div>
     {% endfor%}

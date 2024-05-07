@@ -21,7 +21,7 @@
         <div class="col-sm-10 shadow p-3 mb-5 bg-body rounded" style="margin-top: 10px;">
             <div class="card-body">
               <h5 class="card-title">{{courses.course_name}}</h5>
-              <p class="card-text">{{courses.course_description}}</p>
+              <p class="card-text" style="overflow-wrap: break-word;">{{courses.course_description}}</p>
               {% if pending_request_count > 0 %}
                 <div style="float: right; margin-right: 5px;">{{pending_request_count}}</div>
               {% endif %}

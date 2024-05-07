@@ -25,7 +25,7 @@
               {% if user in courses.user %}
                 <a href="{{url_for('removeCourse', id=courses.id)}}" class="btn btn-primary">Remove Course</a>
               {% else %}
-                <a href="{{url_for('unmember_course', id=courses.id)}}" class="btn btn-primary">Go to Courses</a>
+                <a href="{{url_for('unmember_course', id=courses.id)}}" class="btn btn-primary">Go to Course</a>
               {% endif %}
           </div>
 

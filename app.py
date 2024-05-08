@@ -449,15 +449,15 @@ def search():
     form = Search()
     if current_user.is_authenticated:
         user = current_user
-        if form.validate_on_submit():
-            post = form.searched.data
-            post = post.lower()
-            courses = Courses.query.filter(Courses.course_name.lower().like('%' + post + '%'))
-            courses = courses.order_by(Courses.course_name).all()
-            return render_template("search.html", form=form, user=user, searched=post.lower(), courses=courses)
     else:
         flash("Your Session Timed Out")
         return redirect(url_for("login"))
+    courses = Courses.query
+    if form.validate_on_submit():
+        post = form.searched.data
+        courses = courses.filter(Courses.course_name.like('%' + post + '%'))
+        courses = courses.order_by(Courses.course_name).all()
+        return render_template("search.html", form=form, user=user, searched=post, courses=courses)
 
 @login_required
 @app.route('/member_course/<int:id>')

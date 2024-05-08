@@ -452,7 +452,7 @@ def search():
     else:
         flash("Your Session Timed Out")
         return redirect(url_for("login"))
-    courses = Courses.query.all()
+    courses = Courses.query
     if form.validate_on_submit():
         post = form.searched.data
         courses = courses.filter(Courses.course_name.like('%' + post + '%'))

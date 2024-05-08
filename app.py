@@ -15,6 +15,7 @@ import os
 from datetime import datetime, timedelta
 from wtforms.widgets import TextArea
 import re
+from sqlalchemy import func
 
 
 app = Flask(__name__)
@@ -454,8 +455,8 @@ def search():
         return redirect(url_for("login"))
     courses = Courses.query
     if form.validate_on_submit():
-        post = form.searched.data
-        courses = courses.filter(Courses.course_name.like('%' + post + '%'))
+        post = form.searched.data.lower()
+        courses = courses.filter(func.lower(Courses.course_name).like('%' + post + '%'))
         courses = courses.order_by(Courses.course_name).all()
         return render_template("search.html", form=form, user=user, searched=post, courses=courses)
 

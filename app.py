@@ -26,8 +26,7 @@ uri = os.getenv("DATABASE_URL")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = uri
-upload_folder = 'static/uploads/'
-app.config['UPLOAD_FOLDER'] = upload_folder
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
 #app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://lgndcraft:Zainab12@lgndcraft.mysql.pythonanywhere-services.com/lgndcraft$default"
 #app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://avnadmin:AVNS_h_ZG7r7cVTanjOFgI3P@my-flask-db-first-flask-db.b.aivencloud.com:25122/defaultdb"
 db = SQLAlchemy(app)
@@ -857,6 +856,14 @@ def page_not_found(e):
     courses = Courses.query.order_by(Courses.dateAdded)
     return render_template("404.html", user=user, courses=courses)
 
+@app.errorhandler(413)
+def page_not_found(e):
+    if current_user.is_authenticated:
+        user = current_user
+    else:
+        return redirect(url_for('login'))
+    courses = Courses.query.order_by(Courses.dateAdded)
+    return render_template("413.html", user=user, courses=courses)
 
 @app.errorhandler(500)
 def page_not_found(e):

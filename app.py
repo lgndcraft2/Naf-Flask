@@ -182,6 +182,37 @@ def add_admin(course_id, user_id):
         return redirect(url_for('login'))
 
 @login_required
+@app.route("/remove_admin/<int:user_id>/<int:course_id>", methods=["GET", "POST"])
+def remove_admin(course_id, user_id):
+    user = current_user
+    if user.is_authenticated:
+        course = Courses.query.get_or_404(course_id)
+        new_admin = User.query.get_or_404(user_id)
+        if user == course.creator:
+            if new_admin != course.creator:
+                if new_admin in course.admins:
+                    try:
+                        new_admin.admin_courses.remove(course)
+                        db.session.commit()
+                        flash("Removed admin successfully")
+                        return redirect(url_for("courseDashboard", id=course_id))
+                    except:
+                        flash("An Error Occured")
+                        return redirect(url_for("courseDashboard", id=course_id))
+                else:
+                    flash("They aren't a member of this course")
+                    return redirect(url_for("courseDashboard", id=course_id))
+            else:
+                flash("You can't remove an admin - They created the course")
+                return redirect(url_for(request.referrer))
+        else:
+            flash("You don't have permission to perform this action")
+            return redirect(url_for("dash"))
+    else:
+        flash("Your Session Timed Out")
+        return redirect(url_for('login'))
+
+@login_required
 @app.route("/send_course_request/<int:id>", methods=["GET", "POST"])
 def send_course_request(id):
     user = current_user

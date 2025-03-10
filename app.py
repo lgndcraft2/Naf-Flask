@@ -22,13 +22,8 @@ app = Flask(__name__)
 s3 = boto3.client(
     "s3", aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
 app.config["SECRET_KEY"] = 'qwertyasababyboy'
-uri = os.getenv("DATABASE_URL")
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
-app.config["SQLALCHEMY_DATABASE_URI"] = uri
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
-#app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://lgndcraft:Zainab12@lgndcraft.mysql.pythonanywhere-services.com/lgndcraft$default"
-#app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://avnadmin:AVNS_h_ZG7r7cVTanjOFgI3P@my-flask-db-first-flask-db.b.aivencloud.com:25122/defaultdb"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://avnadmin:AVNS_wPcoMGUzftQFdfQhBnh@nafcourse-nasflask.e.aivencloud.com:19043/defaultdb?ssl-mode=REQUIRED"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 

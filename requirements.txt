@@ -29,8 +29,6 @@ pefile==2022.5.30
 Pillow==9.2.0
 platformdirs==4.2.0
 pycparser==2.22
-pyinstaller==5.5
-pyinstaller-hooks-contrib==2022.10
 PyMySQL==1.1.0
 python-dateutil==2.9.0.post0
 pywin32-ctypes==0.2.0

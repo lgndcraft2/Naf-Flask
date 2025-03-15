@@ -23,7 +23,10 @@ s3 = boto3.client(
     "s3", aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
 app.config["SECRET_KEY"] = 'qwertyasababyboy'
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://avnadmin:AVNS_wPcoMGUzftQFdfQhBnh@nafcourse-nasflask.e.aivencloud.com:19043/defaultdb?ssl-mode=REQUIRED"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://avnadmin:AVNS_wPcoMGUzftQFdfQhBnh@nafcourse-nasflask.e.aivencloud.com:19043/defaultdb"
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "connect_args": {"ssl": {"ssl-mode": "REQUIRED"}}
+}
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
